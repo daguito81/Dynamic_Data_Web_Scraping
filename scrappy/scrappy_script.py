@@ -5,7 +5,7 @@ from selenium import webdriver
 import pandas as pd
 import logging
 import sys
-import psycopg2
+from sqlalchemy import create_engine
 
 
 # Set up logging configuration in scrappy.log
@@ -24,7 +24,8 @@ def create_logger(name: str, file_name: str) -> logging.Logger:
     fh.setLevel(logging.DEBUG)
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(levelname)s - %(asctime)s - %(process)s - %(name)s - %(message)s')
+    formatter = logging.Formatter(
+        '%(levelname)s - %(asctime)s - %(process)s - %(name)s - %(message)s')
     fh.setFormatter(formatter)
     ch.setFormatter(formatter)
     log.addHandler(fh)
@@ -43,25 +44,42 @@ def load_config(file: str) -> dict:
     return conf
 
 
-# TODO Set up DB Connection
 class DatabaseConnection:
     def __init__(self, data):
         self.url = data['url']
         self.port = data['port']
         self.dbuser = data['dbuser']
         self.dbpw = data['dbpw']
+        self.db = data['database']
+        self.con = None
+        self.table = data['dbtable']
+        self.create_connection()
 
     def create_connection(self):
-        pass
+        try:
+            con = create_engine('postgresql://{}:{}@{}:{}/{}'
+                                .format(self.dbuser,
+                                        self.dbpw,
+                                        self.url,
+                                        self.port,
+                                        self.db))
+        except Exception as ie:
+            logger.error("Error connecting to Database", ie)
+            sys.exit(1)
+        self.con = con
 
-
+    def write_to_db(self, df: pd.DataFrame):
+        try:
+            df.to_sql(self.table, self.con, if_exists='append', index=False)
+            logging.debug("Write OK")
+        except Exception as ie:
+            logging.warning("Error writing to Database", ie)
 
 
 class DynScraper:
     def __init__(self, data):
         self.WEBSITE = data['website']
         self.targets = data['scrape']
-        self.df = pd.DataFrame()
         self.driver = None
         self.v_display = None
 
@@ -99,9 +117,8 @@ class DynScraper:
             if web_data.text is None:
                 logger.warning("Element: {}, had no information (empty)".format(elem))
         final_results = pd.DataFrame(data=res, index=[0])
-        self.df = self.df.append(final_results, ignore_index=True)
-        return self.df
-# TODO Set up function to process dataframe and insert to DB
+        final_results['timestamp'] = time.time()
+        return final_results
 
 
 if __name__ == '__main__':
@@ -129,21 +146,24 @@ if __name__ == '__main__':
     logger.debug(msg="Creating WebDriver and connecting to website")
     scrape.connect_website()
 
+    logger.debug(msg="Creating Database connection")
+    db = DatabaseConnection(config['dbinfo'])
+
+    # Main Scraping Loop
     logger.info(msg="Start Scraping")
-    for i in range(10):
+    while True:
         try:
             results = scrape.scrape()
         except Exception as e:
             logger.error("Error Scraping", e)
-            sys.exit(1)
-        # TODO Change logic here for database insert
-        print(results)
-        time.sleep(1)
+            break
+        db.write_to_db(results)
+        time.sleep(0.5)
+
     logger.debug(msg="Closing Virtual Display")
     try:
         scrape.terminate_v_display()
     except Exception as e:
         logger.error("Error closing the Virtual Terminal", e)
     logger.info(msg="Script Ended")
-    print(scrape.df)
     sys.exit(0)
