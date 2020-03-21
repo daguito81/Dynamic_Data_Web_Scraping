@@ -5,32 +5,56 @@ from selenium import webdriver
 import pandas as pd
 import logging
 import sys
-# TODO Set up DB Connection
-import sqlalchemy
 import psycopg2
 
 
 # Set up logging configuration in scrappy.log
-logger = logging.getLogger("Scraping_App")
-logger.setLevel(logging.DEBUG)
+def create_logger(name: str, file_name: str) -> logging.Logger:
+    try:
+        log = logging.getLogger(name)
+    except ValueError or TypeError:
+        print("Error with logger name")
+        sys.exit(1)
+    log.setLevel(logging.DEBUG)
+    try:
+        fh = logging.FileHandler(file_name)
+    except TypeError or ValueError:
+        print("Error with logger filepath")
+        sys.exit(1)
+    fh.setLevel(logging.DEBUG)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(levelname)s - %(asctime)s - %(process)s - %(name)s - %(message)s')
+    fh.setFormatter(formatter)
+    ch.setFormatter(formatter)
+    log.addHandler(fh)
+    log.addHandler(ch)
+    return log
 
-fh = logging.FileHandler("scrappy.log")
-fh.setLevel(logging.DEBUG)
-ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
-formatter = logging.Formatter('%(levelname)s - %(asctime)s - %(process)s - %(name)s - %(message)s')
-fh.setFormatter(formatter)
-ch.setFormatter(formatter)
-logger.addHandler(fh)
-logger.addHandler(ch)
 
 # Load json file with configuration (website, scraping targets, db info)
-try:
-    with open('config.json') as f:
-        config = json.load(f)
-except Exception as e:
-    logger.error("Error Loading Config File", e)
-    sys.exit(1)
+def load_config(file: str) -> dict:
+    try:
+        with open(file) as f:
+            conf = json.load(f)
+    except Exception as ie:
+        logger.error("Error Loading Config File", ie)
+        sys.exit(1)
+    return conf
+
+
+# TODO Set up DB Connection
+class DatabaseConnection:
+    def __init__(self, data):
+        self.url = data['url']
+        self.port = data['port']
+        self.dbuser = data['dbuser']
+        self.dbpw = data['dbpw']
+
+    def create_connection(self):
+        pass
+
+
 
 
 class DynScraper:
@@ -81,6 +105,9 @@ class DynScraper:
 
 
 if __name__ == '__main__':
+    # Create logger and load config file
+    logger = create_logger("Scrappy_App", "scrappy.log")
+    config = load_config("config.json")
 
     # Starting Script and Instantiating Class
     logger.info(msg="Script Started")

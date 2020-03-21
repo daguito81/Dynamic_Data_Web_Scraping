@@ -9,6 +9,7 @@
     },
     "dbinfo": {
         "url": "IP_ADDRESS",
+        "port": "DB_PORT",
         "dbuser": "DB_USER",
         "dbpw": "DB_PASSWORD"
     }
