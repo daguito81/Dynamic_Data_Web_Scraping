@@ -122,6 +122,19 @@ class DynScraper:
         return final_results
 
 
+def scrape_loop(scraper, database):
+    global logger
+    logger.info(msg="Start Scraping")
+    while True:
+        try:
+            results = scraper.scrape()
+        except Exception as ie:
+            logger.error("Error Scraping", ie)
+            break
+        database.write_to_db(results)
+        time.sleep(0.5)
+
+
 if __name__ == '__main__':
     # Create logger and load config file
     logger = create_logger("Scrappy_App", "scrappy.log")
@@ -151,15 +164,7 @@ if __name__ == '__main__':
     db = DatabaseConnection(config['dbinfo'])
 
     # Main Scraping Loop
-    logger.info(msg="Start Scraping")
-    while True:
-        try:
-            results = scrape.scrape()
-        except Exception as e:
-            logger.error("Error Scraping", e)
-            break
-        db.write_to_db(results)
-        time.sleep(0.5)
+    scrape_loop(scrape, db)
 
     logger.debug(msg="Closing Virtual Display")
     try:
