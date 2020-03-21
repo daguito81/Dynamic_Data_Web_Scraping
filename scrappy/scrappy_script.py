@@ -108,14 +108,15 @@ class DynScraper:
         logger.debug(msg="URL: {}".format(self.WEBSITE))
         # Sleep to allow JS scripts to run and create dynamic data
         time.sleep(3)
-        
+
     def scrape(self):
         res = {}
         for elem in self.targets:
             web_data = self.driver.find_element_by_xpath(self.targets[elem])
             res[elem] = web_data.text
             if web_data.text is None:
-                logger.warning("Element: {}, had no information (empty)".format(elem))
+                logger.warning("Element: {}, had no information (empty)"
+                               .format(elem))
         final_results = pd.DataFrame(data=res, index=[0])
         final_results['timestamp'] = time.time()
         return final_results
