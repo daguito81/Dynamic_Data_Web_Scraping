@@ -70,4 +70,4 @@ COPY scrappy_script.py .
 COPY config.json .
 
 ENTRYPOINT [ "/usr/bin/tini", "--" ]
-CMD [ "/bin/bash" ]
+CMD [ "tail", "-f", "/dev/null" ]

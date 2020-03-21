@@ -8,8 +8,11 @@
         "UTC_XPATH": "//*[@id='utctime']"
     },
     "dbinfo": {
-        "url": "IP_ADDRESS",
-        "dbuser": "DB_USER",
-        "dbpw": "DB_PASSWORD"
+        "url": "10.5.0.5",
+        "port": "5432",
+        "dbuser": "postgres",
+        "dbpw": "password",
+        "database": "postgres",
+        "dbtable": "test_table"
     }
 }
