@@ -1,0 +1,15 @@
+{
+    "website": "https://www.n2yo.com/?s=25544&live=1",
+    "scrape": {
+        "LAT_XPATH": "//*[@id='satlat']",
+        "LONG_XPATH": "//*[@id='satlng']",
+        "ELE_XPATH": "//*[@id='satel']",
+        "ALT_XPATH": "//*[@id='sataltkm']",
+        "UTC_XPATH": "//*[@id='utctime']"
+    },
+    "dbinfo": {
+        "url": "IP_ADDRESS",
+        "dbuser": "DB_USER",
+        "dbpw": "DB_PASSWORD"
+    }
+}
