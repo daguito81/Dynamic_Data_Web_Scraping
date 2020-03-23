@@ -18,7 +18,7 @@ services:
   scrappy:
     container_name: my_scrappy
     build: scrappy/.
-    image: dynamic_data_web_scraping:latest
+    image: daguito81/dynamic_data_web_scraping:latest
     networks:
       scrap:
         ipv4_address: 10.5.0.6
