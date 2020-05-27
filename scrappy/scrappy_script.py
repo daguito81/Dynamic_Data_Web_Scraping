@@ -12,13 +12,13 @@ from sqlalchemy import create_engine
 def create_logger(name: str, file_name: str) -> logging.Logger:
     try:
         log = logging.getLogger(name)
-    except ValueError or TypeError:
+    except (ValueError, TypeError):
         print("Error with logger name")
         sys.exit(1)
     log.setLevel(logging.DEBUG)
     try:
         fh = logging.FileHandler(file_name)
-    except TypeError or ValueError:
+    except (TypeError, ValueError):
         print("Error with logger filepath")
         sys.exit(1)
     fh.setLevel(logging.DEBUG)
