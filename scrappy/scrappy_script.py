@@ -39,7 +39,8 @@ def load_config(file: str) -> dict:
         with open(file) as f:
             conf = json.load(f)
     except Exception as ie:
-        logger.error("Error Loading Config File", ie)
+        logger.error("Error Loading Config File")
+        logger.error(ie)
         sys.exit(1)
     return conf
 
@@ -64,7 +65,8 @@ class DatabaseConnection:
                                         self.port,
                                         self.db))
         except Exception as ie:
-            logger.error("Error connecting to Database", ie)
+            logger.error("Error connecting to Database")
+            logger.error(ie)
             sys.exit(1)
         self.con = con
 
@@ -95,13 +97,15 @@ class DynScraper:
         try:
             self.driver = webdriver.Firefox()
         except Exception as ie:
-            logger.error("Error creating WebDriver", ie)
+            logger.error("Error creating WebDriver")
+            logger.error(ie)
             sys.exit(1)
         # Connecting to the website to start scraping
         try:
             self.driver.get(self.WEBSITE)
         except Exception as ie:
-            logger.error("Error connecting to website", ie)
+            logger.error("Error connecting to website")
+            logger.error(ie)
             sys.exit(1)
 
         logger.info(msg="Scraping: {}".format(self.driver.title))
@@ -129,7 +133,8 @@ def scrape_loop(scraper, database):
         try:
             results = scraper.scrape()
         except Exception as ie:
-            logger.error("Error Scraping", ie)
+            logger.error("Error Scraping")
+            logger.error(ie)
             break
         database.write_to_db(results)
         time.sleep(0.5)
@@ -145,7 +150,8 @@ if __name__ == '__main__':
     try:
         scrape = DynScraper(config)
     except Exception as e:
-        logger.error("Error Instantiating class with this config file", e)
+        logger.error("Error Instantiating class with this config file")
+        logger.error(e)
         sys.exit(1)
 
     # Creating the virtual display for Selenium
@@ -153,7 +159,8 @@ if __name__ == '__main__':
         logger.debug("Creating Virtual Display")
         scrape.create_v_display()
     except Exception as e:
-        logger.error("Error Creating Virtual Display", e)
+        logger.error("Error Creating Virtual Display")
+        logger.error(e)
         sys.exit(1)
 
     # Creating WebDriver and connecting to website
@@ -170,6 +177,7 @@ if __name__ == '__main__':
     try:
         scrape.terminate_v_display()
     except Exception as e:
-        logger.error("Error closing the Virtual Terminal", e)
+        logger.error("Error closing the Virtual Terminal")
+        logger.error(e)
     logger.info(msg="Script Ended")
     sys.exit(0)
