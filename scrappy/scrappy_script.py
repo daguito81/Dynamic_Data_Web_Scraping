@@ -75,7 +75,8 @@ class DatabaseConnection:
             df.to_sql(self.table, self.con, if_exists='append', index=False)
             logging.debug("Write OK")
         except Exception as ie:
-            logging.warning("Error writing to Database", ie)
+            logging.warning("Error writing to Database")
+            logging.warning(ie)
 
 
 class DynScraper:
